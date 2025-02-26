@@ -6,20 +6,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const rewardsContainer = document.querySelector(".rewards-container");
     const resetXPButton = document.getElementById("reset-xp");
 
-    // Update XP Display
+    // ✅ Update XP Display
     function updateXP() {
         xpDisplay.innerText = xp;
-        xpProgress.style.width = `${(xp / 1000000) * 100}%`; // Adjust progress bar max XP
-        localStorage.setItem("xp", xp);
+        xpProgress.style.width = Math.max((xp / 1000000) * 100, 1) + "%"; // Ensures progress bar is always visible
+        localStorage.setItem("xp", xp.toString());
+        updateRewards();
     }
 
-    // XP Reset Function
+    // ✅ XP Reset Function
     if (resetXPButton) {
         resetXPButton.addEventListener("click", () => {
             if (confirm("Are you sure you want to reset your XP?")) {
                 xp = 0;
                 updateXP();
-                window.location.reload();
             }
         });
     }
@@ -57,8 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
             card.addEventListener("click", () => {
                 xp += task.xp;
                 updateXP();
-                alert(`You earned ${task.xp} XP!`);
-                window.location.reload();
+                alert(`You earned ${task.xp} XP! 🎉`);
             });
             taskContainer.appendChild(card);
         });
@@ -95,14 +94,17 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     // ✅ Load Rewards Dynamically
-    if (rewardsContainer) {
-        rewards.forEach(reward => {
-            const card = document.createElement("div");
-            card.classList.add("reward-card");
-            if (xp >= reward.xpRequired) card.classList.add("unlocked");
-            card.innerHTML = `<h2>${reward.icon} ${reward.title}</h2><p>Unlock at ${reward.xpRequired} XP</p>`;
-            rewardsContainer.appendChild(card);
-        });
+    function updateRewards() {
+        if (rewardsContainer) {
+            rewardsContainer.innerHTML = ""; // Clear previous rewards
+            rewards.forEach(reward => {
+                const card = document.createElement("div");
+                card.classList.add("reward-card");
+                if (xp >= reward.xpRequired) card.classList.add("unlocked");
+                card.innerHTML = `<h2>${reward.icon} ${reward.title}</h2><p>Unlock at ${reward.xpRequired} XP</p>`;
+                rewardsContainer.appendChild(card);
+            });
+        }
     }
 
     // ✅ Keyboard Shortcut for Rewards
